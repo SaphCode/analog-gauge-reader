@@ -1,0 +1,25 @@
+# Environment variables and secrets
+.env
+*.env
+
+# Python
+__pycache__/
+*.py[cod]
+.venv/
+venv/
+*.egg-info/
+
+# Jupyter Notebook
+.ipynb_checkpoints/
+
+# IDEs
+.vscode/
+.idea/
+.DS_Store
+.claude/settings.local.json
+
+# Model weights (uncomment if not committing)
+# *.pt
+
+# Logs
+*.log
