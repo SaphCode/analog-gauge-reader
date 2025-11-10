@@ -1,2 +1,10 @@
 functions-framework==3.*
 Flask==3.0.*
+ultralytics==8.*
+numpy==2.*
+torch==2.*
+torchvision==0.*
+opencv-python-headless==4.*
+Pillow==10.*
+google-cloud-storage==2.*
+google-cloud-firestore==2.*
