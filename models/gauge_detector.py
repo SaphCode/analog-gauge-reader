@@ -23,8 +23,9 @@ Usage:
 """
 
 from ultralytics import YOLO
-from typing import Dict, Optional, Tuple
+from typing import Dict, Tuple
 import os
+from PIL.Image import Image as PILImage
 
 
 class Detection:
@@ -90,7 +91,7 @@ class GaugeDetector:
         except Exception as e:
             raise ValueError(f"Failed to load model: {e}")
     
-    def predict(self, image_path: str, verbose: bool = True) -> Dict[str, Detection]:
+    def predict(self, image: PILImage, verbose: bool = True) -> Dict[str, Detection]:
         """
         Run inference on an image and return the highest confidence detection for each class.
         
@@ -115,11 +116,9 @@ class GaugeDetector:
                 tip_bbox = detections['tip'].bbox
                 confidence = detections['tip'].confidence
         """
-        if not os.path.exists(image_path):
-            raise FileNotFoundError(f"Image file not found: {image_path}")
         
         # Run inference
-        results = self.model(image_path)
+        results = self.model(image)
         
         # Dictionary to store the highest confidence detection for each class
         best_detections: Dict[str, Detection] = {}
@@ -146,12 +145,12 @@ class GaugeDetector:
         
         return best_detections
     
-    def show_results(self, image_path: str) -> None:
+    def show_results(self, image: PILImage) -> None:
         """
         Run inference and display the image with bounding boxes.
         
         Args:
             image_path: Path to the input image
         """
-        results = self.model(image_path)
+        results = self.model(image)
         results[0].show()
