@@ -4,6 +4,7 @@
 *service-account*.json
 *firebase*.json
 *credentials*.json
+.streamlit/secrets.toml
 
 # Python
 __pycache__/

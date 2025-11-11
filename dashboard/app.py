@@ -1,5 +1,5 @@
 from dotenv import load_dotenv
-load_dotenv()  # Load environment variables from .env file
+#load_dotenv()  # Load environment variables from .env file
 
 import os
 import io
@@ -12,7 +12,7 @@ from streamlit_autorefresh import st_autorefresh
 import numpy as np
 
 import firebase_admin
-from firebase_admin import firestore
+from firebase_admin import firestore, credentials
 from google.cloud import storage
 
 
@@ -41,13 +41,29 @@ st.markdown("""
 @st.cache_resource
 def get_firestore_client():
     """Initialize and cache the Firestore client"""
-    # Check if Firebase app is already initialized
-    if not firebase_admin._apps:
-        # Application Default credentials are automatically created.
-        firebase_admin.initialize_app()
+    cred = None
+    # Check if 'firebase_credentials' is in st.secrets
+    if "firebase" in st.secrets:
+        creds_dict = dict(st.secrets.firebase)
+        
+        # Use the dictionary to create the credentials
+        cred = credentials.Certificate(creds_dict)
 
+        # Check if Firebase app is already initialized
+        if not firebase_admin._apps:
+            # Application Default credentials are automatically created.
+            firebase_admin.initialize_app(cred)
+
+    else:
+        load_dotenv()
+        # Check if Firebase app is already initialized
+        if not firebase_admin._apps:
+            # Application Default credentials are automatically created.
+            firebase_admin.initialize_app()
+            
     db = firestore.client()
     return db
+
 
 @st.cache_resource
 def get_storage_client():
@@ -258,7 +274,7 @@ if not df.empty:
                     height=400
                 )
 
-                st.plotly_chart(fig, use_container_width=True)
+                st.plotly_chart(fig, width='stretch')
 
             with col_image:
                 # Display latest image
