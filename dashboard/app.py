@@ -14,6 +14,7 @@ import numpy as np
 import firebase_admin
 from firebase_admin import firestore, credentials
 from google.cloud import storage
+from google.oauth2 import service_account
 
 
 
@@ -68,7 +69,15 @@ def get_firestore_client():
 @st.cache_resource
 def get_storage_client():
     """Initialize and cache the Cloud Storage client"""
-    return storage.Client()
+    # Check if 'firebase' secrets exist (Streamlit Cloud deployment)
+    if "firebase" in st.secrets:
+        creds_dict = dict(st.secrets.firebase)
+        credentials_gcs = service_account.Credentials.from_service_account_info(creds_dict)
+        return storage.Client(credentials=credentials_gcs, project=creds_dict.get('project_id'))
+    else:
+        # Local development - uses GOOGLE_APPLICATION_CREDENTIALS environment variable
+        load_dotenv()
+        return storage.Client()
 
 def download_image_from_gcs(bucket_name, image_path):
     """
