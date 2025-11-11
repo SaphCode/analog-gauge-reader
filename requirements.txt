@@ -1,0 +1,8 @@
+pillow==12.*
+streamlit
+firebase-admin
+pandas
+python-dotenv
+google-cloud-storage
+plotly
+streamlit-autorefresh

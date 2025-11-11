@@ -1,0 +1,49 @@
+# Google Cloud Functions ignore file
+# Syntax similar to .gitignore
+# Only essential files are deployed
+
+# Jupyter notebooks and checkpoints
+*.ipynb
+.ipynb_checkpoints/
+
+# Log files
+*.log
+
+# Shell scripts (deployment scripts, etc.)
+*.sh
+
+# Python cache and compiled files
+__pycache__/
+*.pyc
+*.pyo
+*.pyd
+.Python
+
+# Virtual environments
+.venv/
+venv/
+env/
+
+# IDE and editor files
+.vscode/
+.idea/
+*.swp
+*.swo
+*~
+
+# Testing and development files
+test_*.py
+*_test.py
+tests/
+
+# OS files
+.DS_Store
+Thumbs.db
+
+# Git
+.git/
+.gitignore
+
+# Documentation (if any)
+README.md
+docs/

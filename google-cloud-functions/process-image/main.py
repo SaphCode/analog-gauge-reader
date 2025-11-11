@@ -9,6 +9,7 @@ import logging
 import os
 import io
 from typing import Tuple
+from datetime import datetime
 from flask import Request, jsonify
 import functions_framework
 from PIL import Image
@@ -85,7 +86,7 @@ def process_image(request: Request) -> Tuple[dict, int]:
             - min_value: Minimum gauge value (default: 0)
             - max_value: Maximum gauge value (default: 100)
             - unit: Measurement unit (default: "units")
-            - timestamp: Image capture timestamp in format YYYYMMDD_HHMMSS (optional)
+            - timestamp: Image capture timestamp in ISO 8601 format (e.g., str(datetime.now()))
 
     Returns:
         Tuple[dict, int]: JSON response and HTTP status code
@@ -100,7 +101,7 @@ def process_image(request: Request) -> Tuple[dict, int]:
           - min_value: 0
           - max_value: 160
           - unit: PSI
-          - timestamp: 20250110_143022
+          - timestamp: 2025-01-10 14:30:22.123456
 
     Example curl command:
         curl -X POST \
@@ -109,7 +110,7 @@ def process_image(request: Request) -> Tuple[dict, int]:
           -F "min_value=0" \
           -F "max_value=160" \
           -F "unit=PSI" \
-          -F "timestamp=20250110_143022" \
+          -F "timestamp=2025-01-10 14:30:22.123456" \
           https://your-function-url
     """
 
@@ -188,7 +189,7 @@ def process_image(request: Request) -> Tuple[dict, int]:
         if device_id == 'default-gauge':
             logger.warning("The device id was not specified. Assuming default-gauge.")
 
-        if not min_value:
+        if min_value is None:
             logger.error("No minimum gauge value supplied")
             return (
                 jsonify({
@@ -197,8 +198,8 @@ def process_image(request: Request) -> Tuple[dict, int]:
                 }),
                 400
             )
-    
-        if not max_value:
+
+        if max_value is None:
             logger.error("No maximum gauge value supplied")
             return (
                 jsonify({
@@ -207,7 +208,7 @@ def process_image(request: Request) -> Tuple[dict, int]:
                 }),
                 400
             )
-        
+
         if not unit:
             logger.error("No unit given")
             return (
@@ -229,18 +230,21 @@ def process_image(request: Request) -> Tuple[dict, int]:
             )
 
 
-        # Extract date from timestamp (first 8 chars: YYYYMMDD)
-        date_folder = timestamp[:8] if timestamp and len(timestamp) >= 8 else None
-
-        if not date_folder:
-            logger.error("Invalid or missing timestamp")
+        # Parse timestamp string (ISO 8601 format from datetime.now())
+        try:
+            timestamp_dt = datetime.fromisoformat(timestamp)
+        except (ValueError, TypeError):
+            logger.error(f"Invalid timestamp format: {timestamp}")
             return (
                 jsonify({
                     'error': 'Bad request',
-                    'message': 'timestamp parameter required in format YYYYMMDD_HHMMSS'
+                    'message': 'timestamp parameter must be in ISO 8601 format (e.g., from datetime.now())'
                 }),
                 400
             )
+
+        # Extract date for folder organization (YYYYMMDD)
+        date_folder = timestamp_dt.strftime('%Y%m%d')
 
         # Log request details
         logger.info("=" * 60)
@@ -276,7 +280,7 @@ def process_image(request: Request) -> Tuple[dict, int]:
 
         # Save image to Cloud Storage
         logger.info("Saving image to Cloud Storage...")
-        image_path = f"{device_id}/{date_folder}/{timestamp}.jpg"
+        image_path = f"{device_id}/{date_folder}/{filename}.jpg"
         bucket = storage_client.bucket(BUCKET_NAME)
         blob = bucket.blob(image_path)
         blob.upload_from_string(image_data, content_type='image/jpeg')
@@ -286,7 +290,7 @@ def process_image(request: Request) -> Tuple[dict, int]:
         logger.info("Saving metadata to Firestore...")
         doc_ref = firestore_client.collection('readings').add({
             'device_id': device_id,
-            'timestamp': timestamp,
+            'timestamp': timestamp_dt,  # Store as datetime object (Firestore converts to Timestamp)
             'date': date_folder,
             'measurement': measurement,
             'unit': unit,

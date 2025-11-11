@@ -1,6 +1,9 @@
 # Environment variables and secrets
 .env
 *.env
+*service-account*.json
+*firebase*.json
+*credentials*.json
 
 # Python
 __pycache__/

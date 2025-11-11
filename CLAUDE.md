@@ -2,6 +2,22 @@
 
 This file provides guidance to Claude Code (claude.ai/code) when working with code in this repository.
 
+## Working Preferences
+
+When assisting with this project, please follow these guidelines:
+
+1. **Incremental Changes**: Make only small, focused changes to code unless explicitly asked to do larger refactors. This helps with learning and understanding.
+
+2. **Educational Approach**: The developer is learning - prioritize understanding over speed. Explain decisions and trade-offs.
+
+3. **Planning First**: Before implementing features:
+   - Create a plan outlining the approach
+   - Identify decision points where multiple options exist
+   - Present different implementation options with their advantages and disadvantages
+   - Wait for confirmation before proceeding with implementation
+
+4. **Discuss Trade-offs**: When there are multiple ways to solve a problem, present the options with pros/cons so informed decisions can be made.
+
 ## Project Overview
 
 This is an analog gauge monitoring system that uses YOLO object detection to read measurements from analog gauges (e.g., pressure gauges, thermometers). The system consists of:
@@ -41,12 +57,47 @@ This is an analog gauge monitoring system that uses YOLO object detection to rea
 - TODO: Integration with gauge detection/reading models pending
 - Will return gauge reading as JSON response to Pi
 
+### Data Storage and Dashboard
+
+4. **Firestore Database** (Cloud Storage)
+   - Stores gauge readings with timestamp, measurement value, and metadata
+   - Uses Firebase Admin SDK for Python (`firebase_admin`)
+   - **Database Design**: Single `readings` collection for all devices
+     - Each document represents one gauge reading from one device
+     - Readings are filtered by `device_id` field
+     - Allows querying across all devices or filtering to specific device
+   - **Document Structure**:
+     ```javascript
+     {
+       device_id: "pi-001",      // Which Raspberry Pi sent this reading
+       timestamp: Timestamp,      // When the reading was taken
+       measurement: 145.2,        // The gauge reading value
+       unit: "PSI",              // Measurement unit
+       location: "Tank A",       // Optional: physical location
+       gauge_min: 0,             // Optional: gauge scale minimum
+       gauge_max: 160,           // Optional: gauge scale maximum
+       image_url: "gs://..."     // Optional: link to source image in Cloud Storage
+     }
+     ```
+   - Requires Google Cloud service account credentials
+
+5. **Dashboard** (`dashboard/`)
+   - Basic visualization and monitoring interface
+   - Fetches historical data from Firestore `readings` collection
+   - Can filter by device or view all devices
+   - TODO: Add real-time monitoring, charts, and alerts
+
 ## Key Dependencies
 
 The project uses:
 - `ultralytics` - YOLO v8 model for object detection
 - `numpy` - Vector and geometric calculations
 - `functions-framework` + `Flask` - Google Cloud Functions (in cloud function only)
+- `firebase-admin` - Firebase Admin SDK for Firestore access
+- `pandas` - Data manipulation for dashboard
+- `pillow` - Image processing (PIL)
+
+Root `requirements.txt` contains dependencies for local development and dashboard.
 
 ## Development Environment
 
