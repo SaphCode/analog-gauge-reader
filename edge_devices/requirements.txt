@@ -1,0 +1,13 @@
+# Raspberry Pi Edge Device Requirements
+
+# Camera interface for Raspberry Pi
+picamera2>=0.3.12
+
+# Image processing
+Pillow>=10.0.0
+
+# HTTP requests to cloud function
+requests>=2.31.0
+
+# Task scheduling
+schedule>=1.2.0
