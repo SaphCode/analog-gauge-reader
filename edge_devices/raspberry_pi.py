@@ -29,10 +29,12 @@ GAUGE_UNIT = None
 DEBUG_IMAGE_PATH = None
 LOG_FILE = None
 
+logger = None
+
 
 def load_config():
     """Load configuration from JSON file."""
-    global DEVICE_ID, GAUGE_MIN, GAUGE_MAX, GAUGE_UNIT
+    global DEVICE_ID, GAUGE_MIN, GAUGE_MAX, GAUGE_UNIT, DEBUG_IMAGE_PATH, LOG_FILE, logger
 
     try:
         with open(CONFIG_FILE, 'r') as f:
@@ -45,32 +47,45 @@ def load_config():
         DEBUG_IMAGE_PATH = config['debug_image_path']
         LOG_FILE = config['log_file']
 
+        # Create directories for log file and debug images if they don't exist
+        log_dir = os.path.dirname(LOG_FILE)
+        if log_dir and not os.path.exists(log_dir):
+            os.makedirs(log_dir, exist_ok=True)
+            print(f"Created log directory: {log_dir}")
+
+        debug_image_dir = os.path.dirname(DEBUG_IMAGE_PATH)
+        if debug_image_dir and not os.path.exists(debug_image_dir):
+            os.makedirs(debug_image_dir, exist_ok=True)
+            print(f"Created debug image directory: {debug_image_dir}")
+
+        # Setup logging
+        logging.basicConfig(
+        level=logging.INFO,
+        format='%(asctime)s - %(levelname)s - %(message)s',
+        handlers=[
+            logging.FileHandler(LOG_FILE),
+            logging.StreamHandler()
+        ]
+        )
+        logger = logging.getLogger(__name__)
+
         logger.info(f"Configuration loaded from {CONFIG_FILE}")
         logger.info(f"Device: {DEVICE_ID}, Range: {GAUGE_MIN}-{GAUGE_MAX} {GAUGE_UNIT}")
         logger.info(f"Log file output to: {LOG_FILE}.")
         logger.info(f"Debug image output to: {DEBUG_IMAGE_PATH}.")
 
     except FileNotFoundError:
-        logger.error(f"Config file not found: {CONFIG_FILE}")
-        logger.error("Please create config.json with device_id and gauge settings")
+        print(f"Config file not found: {CONFIG_FILE}")
+        print("Please create config.json with device_id and gauge settings")
         sys.exit(1)
     except KeyError as e:
-        logger.error(f"Missing required config key: {e}")
+        print(f"Missing required config key: {e}")
         sys.exit(1)
     except json.JSONDecodeError as e:
-        logger.error(f"Invalid JSON in config file: {e}")
+        print(f"Invalid JSON in config file: {e}")
         sys.exit(1)
 
-# Setup logging
-logging.basicConfig(
-    level=logging.INFO,
-    format='%(asctime)s - %(levelname)s - %(message)s',
-    handlers=[
-        logging.FileHandler(LOG_FILE),
-        logging.StreamHandler()
-    ]
-)
-logger = logging.getLogger(__name__)
+
 
 # Failed upload queue: stores (image, timestamp, retry_count)
 failed_uploads = deque()
