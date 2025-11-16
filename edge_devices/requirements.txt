@@ -1,7 +1,8 @@
 # Raspberry Pi Edge Device Requirements
 
 # Camera interface for Raspberry Pi
-picamera2>=0.3.12
+# best installed using apt
+# picamera2>=0.3.12
 
 # Image processing
 Pillow>=10.0.0
