@@ -1,0 +1,8 @@
+{
+  "device_id": "pressure-gauge-eng",
+  "gauge": {
+    "min_value": 0,
+    "max_value": 160,
+    "unit": "PSI"
+  }
+}
