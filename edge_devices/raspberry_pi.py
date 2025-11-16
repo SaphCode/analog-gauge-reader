@@ -18,8 +18,7 @@ CAPTURE_INTERVAL = 5  # minutes
 RETRY_INTERVAL = 30  # seconds
 MAX_RETRIES = 5
 BACKOFF_MULTIPLIER = 2
-DEBUG_IMAGE_PATH = "/home/pi/latest_capture.jpg"
-LOG_FILE = "/home/pi/gauge_monitor.log"
+
 CONFIG_FILE = os.path.join(os.path.dirname(__file__), "config.json")
 
 # These will be loaded from config file
@@ -27,6 +26,8 @@ DEVICE_ID = None
 GAUGE_MIN = None
 GAUGE_MAX = None
 GAUGE_UNIT = None
+DEBUG_IMAGE_PATH = None
+LOG_FILE = None
 
 
 def load_config():
@@ -41,9 +42,13 @@ def load_config():
         GAUGE_MIN = config['gauge']['min_value']
         GAUGE_MAX = config['gauge']['max_value']
         GAUGE_UNIT = config['gauge']['unit']
+        DEBUG_IMAGE_PATH = config['debug_image_path']
+        LOG_FILE = config['log_file']
 
         logger.info(f"Configuration loaded from {CONFIG_FILE}")
         logger.info(f"Device: {DEVICE_ID}, Range: {GAUGE_MIN}-{GAUGE_MAX} {GAUGE_UNIT}")
+        logger.info(f"Log file output to: {LOG_FILE}.")
+        logger.info(f"Debug image output to: {DEBUG_IMAGE_PATH}.")
 
     except FileNotFoundError:
         logger.error(f"Config file not found: {CONFIG_FILE}")

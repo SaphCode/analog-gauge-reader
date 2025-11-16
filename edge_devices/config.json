@@ -4,5 +4,7 @@
     "min_value": 0,
     "max_value": 160,
     "unit": "PSI"
-  }
+  },
+  "log_file": "/home/chris/gauge_monitor.log",
+  "debug_image_path": "/home/chris/latest_image.jpg"
 }
