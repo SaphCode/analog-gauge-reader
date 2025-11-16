@@ -28,3 +28,6 @@ venv/
 
 # Logs
 *.log
+
+# Local Configs
+edge_devices/config.json
