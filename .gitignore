@@ -5,6 +5,7 @@
 *firebase*.json
 *credentials*.json
 .streamlit/secrets.toml
+**/.streamlit/secrets.toml
 
 # Python
 __pycache__/
