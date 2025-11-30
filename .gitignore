@@ -26,6 +26,13 @@ venv/
 # Model weights (uncomment if not committing)
 # *.pt
 
+# Model training artifacts and datasets
+models/archive/
+models/data/
+models/gauge_dataset_quick/
+models/runs/
+models/Model Fine-Tuning.ipynb
+
 # Logs
 *.log
 
