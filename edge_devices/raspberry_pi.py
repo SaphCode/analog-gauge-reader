@@ -60,12 +60,12 @@ def load_config():
 
         # Setup logging
         logging.basicConfig(
-        level=logging.INFO,
-        format='%(asctime)s - %(levelname)s - %(message)s',
-        handlers=[
-            logging.FileHandler(LOG_FILE),
-            logging.StreamHandler()
-        ]
+            level=logging.INFO,
+            format='%(asctime)s - %(levelname)s - %(message)s',
+            handlers=[
+                logging.FileHandler(LOG_FILE),
+                logging.StreamHandler()
+            ]
         )
         logger = logging.getLogger(__name__)
 

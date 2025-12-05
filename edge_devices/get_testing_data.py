@@ -21,7 +21,7 @@ logger = None
 camera = None
 
 # Configuration
-CAPTURE_INTERVAL = 10  # seconds
+CAPTURE_INTERVAL = 3  # seconds
 OUTPUT_DIR = "captured_images"  # directory to save images
 
 
