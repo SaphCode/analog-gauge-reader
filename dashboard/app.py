@@ -220,8 +220,8 @@ with col1:
 with col2:
     # Get total records for selected device to set slider max
     total_records = get_total_records(collection_name='readings', device_id=selected_device)
-    max_records = max(10, total_records)  # Ensure at least 10
-    num_records = st.slider("Number of Records", min_value=5, max_value=max_records, value=min(100, max_records))
+    max_records = min(max(10, total_records), 1000)  # Cap at 1000
+    num_records = st.slider("Number of Records", min_value=5, max_value=max_records, value=min(20, max_records))
 
 # Fetch data based on selections
 df = fetch_gauge_readings(collection_name='readings', limit=num_records, device_id=selected_device)
@@ -243,6 +243,30 @@ if not df.empty:
         # Prepare data for chart (reverse order so oldest is first for proper time series)
         chart_df = df.sort_values('timestamp').copy()
 
+        # Smart gap detection: break lines when time gaps are too large
+        if len(chart_df) > 1:
+            # Calculate time differences between consecutive points
+            time_diffs = chart_df['timestamp'].diff()
+
+            # Determine threshold: 2x the median time interval
+            median_interval = time_diffs.median()
+            gap_threshold = median_interval * 2
+
+            # Insert NaN values where gaps exceed threshold to break lines
+            large_gaps = time_diffs > gap_threshold
+            if large_gaps.any():
+                # Create list to hold modified data
+                rows = []
+                for idx, row in chart_df.iterrows():
+                    rows.append(row)
+                    # If this point has a large gap before it, insert a NaN point
+                    if large_gaps.loc[idx]:
+                        nan_row = row.copy()
+                        nan_row['measurement'] = np.nan
+                        rows.append(nan_row)
+
+                chart_df = pd.DataFrame(rows)
+
         # Display chart and image side by side
         if 'timestamp' in chart_df.columns and 'measurement' in chart_df.columns:
             col_chart, col_image = st.columns([4, 1])
@@ -251,13 +275,14 @@ if not df.empty:
                 # Create Plotly chart
                 fig = go.Figure()
 
-                # Add main line chart
+                # Add main line chart with markers
                 fig.add_trace(go.Scatter(
                     x=chart_df['timestamp'],
                     y=chart_df['measurement'],
-                    mode='lines',
+                    mode='lines+markers',
                     name='Measurement',
                     line=dict(color='#1f77b4', width=2),
+                    marker=dict(size=4, color='#1f77b4'),
                     hovertemplate='%{y:.2f}<extra></extra>'
                 ))
 
